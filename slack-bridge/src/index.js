@@ -53,6 +53,9 @@ export default {
   },
 };
 
+// The routines API only accepts a single `text` field, treated as freeform
+// string. We JSON-stringify our multi-field payload into it; the routine
+// prompt parses it back out.
 async function triggerRoutine(env, payload) {
   try {
     const res = await fetch(env.ROUTINE_ENDPOINT, {
@@ -60,8 +63,10 @@ async function triggerRoutine(env, payload) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${env.ROUTINE_BEARER_TOKEN}`,
+        "anthropic-beta": "experimental-cc-routine-2026-04-01",
+        "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ text: JSON.stringify(payload) }),
     });
     if (!res.ok) {
       console.error("Routine trigger failed", res.status, await res.text());

@@ -7,4 +7,4 @@ compatibility_date = "2026-05-21"
 #   SLACK_SIGNING_SECRET    Slack app signing secret (1Password)
 #   ROUTINE_BEARER_TOKEN    Bearer token from the routine's API trigger config
 [vars]
-ROUTINE_ENDPOINT = "https://REPLACE_ME.routines.anthropic.com/trigger"
+ROUTINE_ENDPOINT = "https://api.anthropic.com/v1/claude_code/routines/trig_013jJeLDEiqDqPY7LanR5nZk/fire"
