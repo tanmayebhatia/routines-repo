@@ -23,23 +23,28 @@ Read the following files from this repo before doing anything else:
 From the `text`, determine:
 
 1. **Company**: fuzzy-match against `data/portfolio.md` using the rules in its "Match guidance" section. If you cannot confidently identify a single portfolio company, set company to `UNKNOWN` and skip to the UNKNOWN path below.
-2. **Type**: pick exactly one category from `data/update-types.md`. If multiple plausibly apply, pick the most material.
+2. **Type**: pick exactly one category from `data/update-types.md`. The Notion select column accepts only these exact values (case-sensitive): `Fundraise`, `Risk`, `Metrics`, `Press`, `Impact Work`, `General Update`.
 3. **Summary**: 1 to 2 sentences in your own words. Factual, no marketing language, no hype words, no em dashes. If a number or fact isn't in the source text, do not invent it.
 4. **Importance**: integer 1 to 5 where 1 is trivial (minor press mention, small product tweak) and 5 is highly material (major fundraise, acquisition, blow-up risk, $10M+ ARR milestone).
 
 ## Step 3a: Happy path (company matched)
 
-Write a row to the Notion database named **"Portfolio Updates"** via the Notion MCP connector. Columns:
+Write a row to the Notion database by calling the Notion MCP `create-pages` tool, targeting this exact data source:
 
-| Column        | Value                                   |
-|---------------|-----------------------------------------|
-| Company       | the matched portfolio company name      |
-| Type          | one of the 6 taxonomy values            |
-| Summary       | your 1-2 sentence summary               |
-| Submitted by  | the `user_name` from the payload        |
-| Raw text      | the original `text` from the payload    |
-| Importance    | integer 1 to 5                          |
-| Date          | today's date (UTC)                      |
+- **Data source URL**: `collection://3676278e-8af2-8069-990f-000bb24f2b1d`
+- (Database name "Routines Session", view "Portfolio Updates", in the primaryteam workspace.)
+
+The row must populate these columns. Use the column names EXACTLY as written here (case and spacing matter):
+
+| Column         | Value                                                |
+|----------------|------------------------------------------------------|
+| Company        | the matched portfolio company name (this is the title column) |
+| Type           | one of: Fundraise / Risk / Metrics / Press / Impact Work / General Update |
+| Summary        | your 1-2 sentence summary                            |
+| Submitted By   | the `user_name` from the payload                     |
+| Raw text       | the original `text` from the payload                 |
+| Importance     | integer 1 to 5 (number, not string)                  |
+| Date           | today's date in YYYY-MM-DD (UTC)                     |
 
 After the Notion write succeeds, post a confirmation to Slack by calling `https://slack.com/api/chat.postMessage` with `Authorization: Bearer ${SLACK_BOT_TOKEN}` (the bot token is in your environment), `Content-Type: application/json`, and a body of:
 
@@ -83,6 +88,7 @@ Please clarify the company name and resubmit.
 - Always use `chat.postMessage` with the bot token first. Only fall back to POSTing to `response_url` if the Slack API returns a non-`ok` response.
 - The Slack API returns 200 even on errors; check the JSON body for `"ok": true` before treating the post as successful.
 - Do not retry the Notion write more than once. If it fails twice, report the error to Slack and stop.
+- The Notion data source ID above is the canonical write target. Do not search for the database by name; address it directly by the `collection://` URL.
 
 ## Style reminders
 
